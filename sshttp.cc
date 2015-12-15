@@ -81,6 +81,17 @@ int sshttp::init(int f, const string &laddr, const string &lport, bool tproxy)
 		return -1;
 	}
 
+#ifdef IPV6ONLY
+	if (ai->ai_family == AF_INET6) {
+		int on = 1;
+		if (setsockopt(sock_fd, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on)) == -1) {
+			err = "sshttp::init:setsockopt:";
+			err += strerror(errno);
+			return -1;
+		}
+	}
+#endif
+
 	// -j TPROXY
 	if (tproxy) {
 		if (transparent(af, sock_fd) < 0) {
